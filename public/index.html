@@ -24,6 +24,16 @@
   --radius: 16px;
 }
 
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface-2: #f5f5f7;
+  --border: #e0e0e6;
+  --text: #1a1a2e;
+  --text-muted: #6b6b80;
+  --accent-glow: rgba(108, 92, 231, 0.15);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
@@ -101,6 +111,25 @@ header {
   box-shadow: 0 4px 16px var(--accent-glow);
 }
 
+.btn-theme {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-theme:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
 .btn-add:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px var(--accent-glow);
@@ -109,7 +138,7 @@ header {
 /* Summary Cards */
 .summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr auto auto;
   gap: 16px;
   margin-bottom: 36px;
 }
@@ -135,6 +164,16 @@ header {
 .summary-card:nth-child(1)::after { background: linear-gradient(90deg, var(--accent), var(--pink)); }
 .summary-card:nth-child(2)::after { background: linear-gradient(90deg, var(--green), var(--blue)); }
 .summary-card:nth-child(3)::after { background: linear-gradient(90deg, var(--orange), var(--red)); }
+.summary-card:nth-child(4)::after { background: linear-gradient(90deg, var(--text-muted), var(--border)); }
+
+.summary-card.small {
+  padding: 18px;
+  min-width: 100px;
+}
+
+.summary-card.small .summary-value {
+  font-size: 24px;
+}
 
 .summary-label {
   font-size: 12px;
@@ -163,6 +202,27 @@ header {
   gap: 8px;
   margin-bottom: 24px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-spacer { flex: 1; }
+
+.btn-delete-all {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-delete-all:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(225, 112, 85, 0.1);
 }
 
 .filter-btn {
@@ -294,6 +354,24 @@ header {
   background: rgba(225, 112, 85, 0.1);
 }
 
+.btn-icon.toggle {
+  font-size: 18px;
+}
+
+.btn-icon.toggle:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(0, 184, 148, 0.1);
+}
+
+.sub-card.inactive {
+  opacity: 0.45;
+}
+
+.sub-card.inactive .sub-price-value {
+  text-decoration: line-through;
+}
+
 .btn-icon.edit:hover {
   border-color: var(--blue);
   color: var(--blue);
@@ -384,6 +462,51 @@ header {
 .form-group select option { background: var(--surface); }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.status-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.status-toggle-track {
+  width: 48px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 13px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.status-toggle.active .status-toggle-track {
+  background: var(--green);
+}
+
+.status-toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s;
+}
+
+.status-toggle.active .status-toggle-thumb {
+  transform: translateX(22px);
+}
+
+.status-toggle-label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.status-toggle.active .status-toggle-label {
+  color: var(--green);
+}
 
 .color-picker {
   display: flex;
@@ -482,7 +605,7 @@ header {
 
 /* Responsive */
 @media (max-width: 600px) {
-  .summary { grid-template-columns: 1fr; }
+  .summary { grid-template-columns: repeat(2, 1fr); }
   .summary-card { padding: 18px; }
   .summary-value { font-size: 26px; }
   .sub-card { padding: 16px; }
@@ -500,11 +623,14 @@ header {
   <header>
     <div class="logo">
       <div class="logo-icon">⟐</div>
-      <h1>SUB<span>.</span>TRACK</h1>
+      <h1>SUBSCRIBE<span>.</span>MANAGER</h1>
     </div>
-    <button class="btn-add" onclick="openModal()">
-      <span>+</span> 구독 추가
-    </button>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button class="btn-theme" onclick="toggleTheme()" id="themeBtn" title="테마 전환">🌙</button>
+      <button class="btn-add" onclick="openModal()">
+        <span>+</span> 구독 추가
+      </button>
+    </div>
   </header>
 
   <div class="summary">
@@ -518,10 +644,15 @@ header {
       <div class="summary-value" id="totalYearly">₩0</div>
       <div class="summary-sub">연간 예상 비용</div>
     </div>
-    <div class="summary-card">
+    <div class="summary-card small">
       <div class="summary-label">Active</div>
       <div class="summary-value" id="totalCount">0</div>
-      <div class="summary-sub">활성 구독 수</div>
+      <div class="summary-sub">활성 구독</div>
+    </div>
+    <div class="summary-card small">
+      <div class="summary-label">Inactive</div>
+      <div class="summary-value" id="inactiveCount">0</div>
+      <div class="summary-sub">비활성 구독</div>
     </div>
   </div>
 
@@ -531,6 +662,8 @@ header {
     <button class="filter-btn" data-filter="productivity" onclick="setFilter('productivity')">생산성</button>
     <button class="filter-btn" data-filter="lifestyle" onclick="setFilter('lifestyle')">라이프스타일</button>
     <button class="filter-btn" data-filter="etc" onclick="setFilter('etc')">기타</button>
+    <div class="filter-spacer"></div>
+    <button class="btn-delete-all" onclick="deleteAll()">전체 삭제</button>
   </div>
 
   <div id="subList" class="sub-list">
@@ -552,7 +685,7 @@ header {
     <div class="form-row">
       <div class="form-group">
         <label>금액 (원)</label>
-        <input type="number" id="subPrice" placeholder="17,000">
+        <input type="number" id="subPrice" placeholder="13,500" step="1000" min="0" value="13500">
       </div>
       <div class="form-group">
         <label>결제 주기</label>
@@ -576,7 +709,7 @@ header {
       </div>
       <div class="form-group">
         <label>결제일</label>
-        <input type="number" id="subBillingDay" min="1" max="31" placeholder="15">
+        <input type="number" id="subBillingDay" min="1" max="31" placeholder="10" value="10">
       </div>
     </div>
 
@@ -604,6 +737,16 @@ header {
       <input type="text" id="subMemo" placeholder="가족 공유 계정">
     </div>
 
+    <div class="form-group" id="statusGroup" style="display:none">
+      <label>상태</label>
+      <div class="status-toggle" id="statusToggle" onclick="toggleStatus()">
+        <div class="status-toggle-track">
+          <div class="status-toggle-thumb"></div>
+        </div>
+        <span class="status-toggle-label">활성</span>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">취소</button>
       <button class="btn-save" onclick="saveSub()">저장</button>
@@ -618,6 +761,7 @@ const API = '/api';
 let subscriptions = [];
 let currentFilter = 'all';
 let selectedColor = '#6c5ce7';
+let selectedActive = true;
 
 // Color picker
 document.querySelectorAll('.color-option').forEach(el => {
@@ -643,6 +787,7 @@ async function fetchSubs() {
 
 async function saveSub() {
   const id = document.getElementById('editId').value;
+  const saveBtn = document.querySelector('.btn-save');
   const data = {
     name: document.getElementById('subName').value.trim(),
     price: parseInt(document.getElementById('subPrice').value) || 0,
@@ -652,6 +797,7 @@ async function saveSub() {
     emoji: document.getElementById('subEmoji').value || '📦',
     color: selectedColor,
     memo: document.getElementById('subMemo').value.trim(),
+    active: selectedActive,
   };
 
   if (!data.name || !data.price) {
@@ -659,26 +805,57 @@ async function saveSub() {
     return;
   }
 
+  saveBtn.disabled = true;
+  saveBtn.textContent = '저장 중...';
+
   try {
+    let res;
     if (id) {
-      await fetch(`${API}/subscriptions/${id}`, {
+      res = await fetch(`${API}/subscriptions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      showToast('✅ 수정되었습니다');
     } else {
-      await fetch(`${API}/subscriptions`, {
+      res = await fetch(`${API}/subscriptions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      showToast('✅ 추가되었습니다');
     }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+
     closeModal();
-    fetchSubs();
+    await fetchSubs();
+    showToast(id ? '✅ 수정되었습니다' : '✅ 추가되었습니다');
   } catch (e) {
-    showToast('❌ 저장에 실패했습니다');
+    console.error('saveSub error:', e);
+    showToast('❌ 저장 실패: ' + e.message);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = '저장';
+  }
+}
+
+async function toggleSub(id) {
+  const s = subscriptions.find(x => x.id === id);
+  if (!s) return;
+  const newActive = s.active === false ? true : false;
+  try {
+    const res = await fetch(`${API}/subscriptions/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active: newActive }),
+    });
+    if (!res.ok) throw new Error('Toggle failed');
+    await fetchSubs();
+    showToast(newActive ? '🔔 구독 활성화' : '🔕 구독 비활성화');
+  } catch (e) {
+    showToast('❌ 상태 변경 실패');
   }
 }
 
@@ -687,7 +864,24 @@ async function deleteSub(id) {
   try {
     await fetch(`${API}/subscriptions/${id}`, { method: 'DELETE' });
     showToast('🗑️ 삭제되었습니다');
-    fetchSubs();
+    await fetchSubs();
+  } catch (e) {
+    showToast('❌ 삭제에 실패했습니다');
+  }
+}
+
+async function deleteAll() {
+  if (!subscriptions.length) {
+    showToast('삭제할 구독이 없습니다');
+    return;
+  }
+  if (!confirm(`총 ${subscriptions.length}개의 구독을 모두 삭제하시겠습니까?`)) return;
+  try {
+    await Promise.all(subscriptions.map(s =>
+      fetch(`${API}/subscriptions/${s.id}`, { method: 'DELETE' })
+    ));
+    showToast('🗑️ 전체 삭제되었습니다');
+    await fetchSubs();
   } catch (e) {
     showToast('❌ 삭제에 실패했습니다');
   }
@@ -706,7 +900,7 @@ function render() {
       </div>`;
   } else {
     list.innerHTML = filtered.map(s => `
-      <div class="sub-card" style="animation-delay: ${filtered.indexOf(s) * 0.05}s">
+      <div class="sub-card${s.active === false ? ' inactive' : ''}" style="animation-delay: ${filtered.indexOf(s) * 0.05}s">
         <div class="sub-icon" style="background:${s.color}22; color:${s.color}">${s.emoji}</div>
         <div class="sub-info">
           <div class="sub-name">
@@ -720,6 +914,7 @@ function render() {
           <div class="sub-price-cycle">${getCycleLabel(s.cycle)}</div>
         </div>
         <div class="sub-actions">
+          <button class="btn-icon toggle" onclick="event.stopPropagation(); toggleSub('${s.id}')" title="${s.active === false ? '활성화' : '비활성화'}">${s.active === false ? '🔕' : '🔔'}</button>
           <button class="btn-icon edit" onclick="event.stopPropagation(); editSub('${s.id}')" title="수정">✏️</button>
           <button class="btn-icon" onclick="event.stopPropagation(); deleteSub('${s.id}')" title="삭제">🗑️</button>
         </div>
@@ -732,7 +927,8 @@ function render() {
 
 function updateSummary() {
   let monthly = 0;
-  subscriptions.forEach(s => {
+  const activeSubs = subscriptions.filter(s => s.active !== false);
+  activeSubs.forEach(s => {
     if (s.cycle === 'monthly') monthly += s.price;
     else if (s.cycle === 'yearly') monthly += Math.round(s.price / 12);
     else if (s.cycle === 'weekly') monthly += s.price * 4;
@@ -740,7 +936,8 @@ function updateSummary() {
 
   document.getElementById('totalMonthly').textContent = formatPrice(monthly);
   document.getElementById('totalYearly').textContent = formatPrice(monthly * 12);
-  document.getElementById('totalCount').textContent = subscriptions.length;
+  document.getElementById('totalCount').textContent = activeSubs.length;
+  document.getElementById('inactiveCount').textContent = subscriptions.length - activeSubs.length;
 }
 
 // Modal
@@ -748,13 +945,15 @@ function openModal() {
   document.getElementById('modalTitle').textContent = '구독 추가';
   document.getElementById('editId').value = '';
   document.getElementById('subName').value = '';
-  document.getElementById('subPrice').value = '';
+  document.getElementById('subPrice').value = '15000';
   document.getElementById('subCycle').value = 'monthly';
   document.getElementById('subCategory').value = 'entertainment';
-  document.getElementById('subBillingDay').value = '';
+  document.getElementById('subBillingDay').value = '10';
   document.getElementById('subEmoji').value = '';
   document.getElementById('subMemo').value = '';
   selectColor('#6c5ce7');
+  setActiveStatus(true);
+  document.getElementById('statusGroup').style.display = 'none';
   document.getElementById('modalOverlay').classList.add('active');
 }
 
@@ -771,6 +970,8 @@ function editSub(id) {
   document.getElementById('subEmoji').value = s.emoji;
   document.getElementById('subMemo').value = s.memo || '';
   selectColor(s.color);
+  setActiveStatus(s.active !== false);
+  document.getElementById('statusGroup').style.display = '';
   document.getElementById('modalOverlay').classList.add('active');
 }
 
@@ -785,6 +986,18 @@ function selectColor(color) {
   });
 }
 
+function setActiveStatus(active) {
+  selectedActive = active;
+  const toggle = document.getElementById('statusToggle');
+  const label = toggle.querySelector('.status-toggle-label');
+  toggle.classList.toggle('active', active);
+  label.textContent = active ? '활성' : '비활성';
+}
+
+function toggleStatus() {
+  setActiveStatus(!selectedActive);
+}
+
 function setFilter(f) {
   currentFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b => {
@@ -793,10 +1006,26 @@ function setFilter(f) {
   render();
 }
 
+// Theme
+function toggleTheme() {
+  const html = document.documentElement;
+  const isLight = html.getAttribute('data-theme') === 'light';
+  html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('theme', isLight ? 'dark' : 'light');
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeBtn').textContent = saved === 'light' ? '☀️' : '🌙';
+})();
+
 // Helpers
 function formatPrice(n) {
   return '₩' + n.toLocaleString('ko-KR');
 }
+
 
 function getCycleLabel(c) {
   return { monthly: '/ 월', yearly: '/ 년', weekly: '/ 주' }[c] || '';
@@ -812,11 +1041,6 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-
-// Close modal on overlay click
-document.getElementById('modalOverlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeModal();
-});
 
 // Keyboard
 document.addEventListener('keydown', e => {

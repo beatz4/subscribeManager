@@ -1,0 +1,15 @@
+[
+  {
+    "id": "mlrcpn6faqrmx7",
+    "name": "aaaaa",
+    "price": 12222,
+    "cycle": "monthly",
+    "category": "entertainment",
+    "billingDay": 1,
+    "emoji": "📦",
+    "color": "#6c5ce7",
+    "memo": "",
+    "active": true,
+    "createdAt": "2026-02-18T01:26:17.751Z"
+  }
+]
