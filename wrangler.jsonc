@@ -1,0 +1,15 @@
+{
+	"name": "bookmanager",
+	"main": "src/index.js",
+	"compatibility_date": "2026-02-16",
+	"assets": {
+		"directory": "./public"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "BOOKS_KV",
+			"id": "4c6a13c6bf1049418b0f4bb47314bf5c",
+			"remote": true
+		}
+	]
+}
