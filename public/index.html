@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>구독 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface-2: #1a1a26;
+  --border: #2a2a3a;
+  --text: #e8e8f0;
+  --text-muted: #7a7a8e;
+  --accent: #6c5ce7;
+  --accent-glow: rgba(108, 92, 231, 0.3);
+  --green: #00b894;
+  --orange: #fdcb6e;
+  --red: #e17055;
+  --pink: #fd79a8;
+  --blue: #74b9ff;
+  --radius: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 20%, rgba(108,92,231,0.06) 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, rgba(253,121,168,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 20px 100px; }
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0 40px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.logo h1 {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.logo h1 span { color: var(--accent); }
+
+.btn-add {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
+}
+
+/* Summary Cards */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.summary-card:nth-child(1)::after { background: linear-gradient(90deg, var(--accent), var(--pink)); }
+.summary-card:nth-child(2)::after { background: linear-gradient(90deg, var(--green), var(--blue)); }
+.summary-card:nth-child(3)::after { background: linear-gradient(90deg, var(--orange), var(--red)); }
+
+.summary-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-family: 'Space Mono', monospace;
+}
+
+.summary-value {
+  font-size: 32px;
+  font-weight: 900;
+  font-family: 'Space Mono', monospace;
+}
+
+.summary-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px 18px;
+  border-radius: 100px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.filter-btn:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+/* Subscription List */
+.sub-list { display: flex; flex-direction: column; gap: 12px; }
+
+.sub-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sub-card:hover {
+  border-color: var(--accent);
+  transform: translateX(4px);
+  box-shadow: -4px 0 20px var(--accent-glow);
+}
+
+.sub-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.sub-info { flex: 1; min-width: 0; }
+
+.sub-name {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sub-category {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: 'Space Mono', monospace;
+}
+
+.sub-detail {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.sub-price {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sub-price-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.sub-price-cycle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sub-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(225, 112, 85, 0.1);
+}
+
+.btn-icon.edit:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(116, 185, 255, 0.1);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state p { font-size: 16px; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.95) translateY(20px);
+  transition: transform 0.3s;
+}
+
+.modal-overlay.active .modal { transform: scale(1) translateY(0); }
+
+.modal h2 {
+  font-size: 20px;
+  margin-bottom: 28px;
+  font-weight: 700;
+}
+
+.form-group { margin-bottom: 20px; }
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-family: 'Space Mono', monospace;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: 'Noto Sans KR', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--accent);
+}
+
+.form-group select { cursor: pointer; }
+.form-group select option { background: var(--surface); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.color-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.color-option.selected {
+  border-color: white;
+  transform: scale(1.15);
+  box-shadow: 0 0 12px rgba(255,255,255,0.2);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+
+.btn-save {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.btn-save:hover { transform: translateY(-1px); box-shadow: 0 8px 24px var(--accent-glow); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-size: 14px;
+  z-index: 200;
+  transition: transform 0.3s;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Loading */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .summary { grid-template-columns: 1fr; }
+  .summary-card { padding: 18px; }
+  .summary-value { font-size: 26px; }
+  .sub-card { padding: 16px; }
+  .sub-icon { width: 40px; height: 40px; font-size: 18px; }
+  .sub-price-value { font-size: 15px; }
+  header { flex-direction: column; gap: 20px; align-items: stretch; }
+  .btn-add { justify-content: center; }
+  .form-row { grid-template-columns: 1fr; }
+  .modal { padding: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⟐</div>
+      <h1>SUB<span>.</span>TRACK</h1>
+    </div>
+    <button class="btn-add" onclick="openModal()">
+      <span>+</span> 구독 추가
+    </button>
+  </header>
+
+  <div class="summary">
+    <div class="summary-card">
+      <div class="summary-label">Monthly</div>
+      <div class="summary-value" id="totalMonthly">₩0</div>
+      <div class="summary-sub">월간 총 구독료</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Yearly</div>
+      <div class="summary-value" id="totalYearly">₩0</div>
+      <div class="summary-sub">연간 예상 비용</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Active</div>
+      <div class="summary-value" id="totalCount">0</div>
+      <div class="summary-sub">활성 구독 수</div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">전체</button>
+    <button class="filter-btn" data-filter="entertainment" onclick="setFilter('entertainment')">엔터테인먼트</button>
+    <button class="filter-btn" data-filter="productivity" onclick="setFilter('productivity')">생산성</button>
+    <button class="filter-btn" data-filter="lifestyle" onclick="setFilter('lifestyle')">라이프스타일</button>
+    <button class="filter-btn" data-filter="etc" onclick="setFilter('etc')">기타</button>
+  </div>
+
+  <div id="subList" class="sub-list">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">구독 추가</h2>
+    <input type="hidden" id="editId">
+
+    <div class="form-group">
+      <label>서비스명</label>
+      <input type="text" id="subName" placeholder="예: Netflix, Spotify...">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>금액 (원)</label>
+        <input type="number" id="subPrice" placeholder="17,000">
+      </div>
+      <div class="form-group">
+        <label>결제 주기</label>
+        <select id="subCycle">
+          <option value="monthly">월간</option>
+          <option value="yearly">연간</option>
+          <option value="weekly">주간</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>카테고리</label>
+        <select id="subCategory">
+          <option value="entertainment">엔터테인먼트</option>
+          <option value="productivity">생산성</option>
+          <option value="lifestyle">라이프스타일</option>
+          <option value="etc">기타</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>결제일</label>
+        <input type="number" id="subBillingDay" min="1" max="31" placeholder="15">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>아이콘 (이모지)</label>
+      <input type="text" id="subEmoji" placeholder="🎬" maxlength="4">
+    </div>
+
+    <div class="form-group">
+      <label>색상</label>
+      <div class="color-picker" id="colorPicker">
+        <div class="color-option selected" data-color="#6c5ce7" style="background:#6c5ce7"></div>
+        <div class="color-option" data-color="#e17055" style="background:#e17055"></div>
+        <div class="color-option" data-color="#00b894" style="background:#00b894"></div>
+        <div class="color-option" data-color="#fdcb6e" style="background:#fdcb6e"></div>
+        <div class="color-option" data-color="#fd79a8" style="background:#fd79a8"></div>
+        <div class="color-option" data-color="#74b9ff" style="background:#74b9ff"></div>
+        <div class="color-option" data-color="#a29bfe" style="background:#a29bfe"></div>
+        <div class="color-option" data-color="#fab1a0" style="background:#fab1a0"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>메모 (선택)</label>
+      <input type="text" id="subMemo" placeholder="가족 공유 계정">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save" onclick="saveSub()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api';
+let subscriptions = [];
+let currentFilter = 'all';
+let selectedColor = '#6c5ce7';
+
+// Color picker
+document.querySelectorAll('.color-option').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedColor = el.dataset.color;
+  });
+});
+
+// API calls
+async function fetchSubs() {
+  try {
+    const res = await fetch(`${API}/subscriptions`);
+    if (!res.ok) throw new Error('Failed to fetch');
+    subscriptions = await res.json();
+  } catch (e) {
+    console.error(e);
+    subscriptions = [];
+  }
+  render();
+}
+
+async function saveSub() {
+  const id = document.getElementById('editId').value;
+  const data = {
+    name: document.getElementById('subName').value.trim(),
+    price: parseInt(document.getElementById('subPrice').value) || 0,
+    cycle: document.getElementById('subCycle').value,
+    category: document.getElementById('subCategory').value,
+    billingDay: parseInt(document.getElementById('subBillingDay').value) || 1,
+    emoji: document.getElementById('subEmoji').value || '📦',
+    color: selectedColor,
+    memo: document.getElementById('subMemo').value.trim(),
+  };
+
+  if (!data.name || !data.price) {
+    showToast('⚠️ 서비스명과 금액을 입력해주세요');
+    return;
+  }
+
+  try {
+    if (id) {
+      await fetch(`${API}/subscriptions/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      showToast('✅ 수정되었습니다');
+    } else {
+      await fetch(`${API}/subscriptions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      showToast('✅ 추가되었습니다');
+    }
+    closeModal();
+    fetchSubs();
+  } catch (e) {
+    showToast('❌ 저장에 실패했습니다');
+  }
+}
+
+async function deleteSub(id) {
+  if (!confirm('정말 삭제하시겠습니까?')) return;
+  try {
+    await fetch(`${API}/subscriptions/${id}`, { method: 'DELETE' });
+    showToast('🗑️ 삭제되었습니다');
+    fetchSubs();
+  } catch (e) {
+    showToast('❌ 삭제에 실패했습니다');
+  }
+}
+
+// Rendering
+function render() {
+  const list = document.getElementById('subList');
+  const filtered = currentFilter === 'all' ? subscriptions : subscriptions.filter(s => s.category === currentFilter);
+
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <p>등록된 구독이 없습니다</p>
+      </div>`;
+  } else {
+    list.innerHTML = filtered.map(s => `
+      <div class="sub-card" style="animation-delay: ${filtered.indexOf(s) * 0.05}s">
+        <div class="sub-icon" style="background:${s.color}22; color:${s.color}">${s.emoji}</div>
+        <div class="sub-info">
+          <div class="sub-name">
+            ${s.name}
+            <span class="sub-category">${getCategoryLabel(s.category)}</span>
+          </div>
+          <div class="sub-detail">매월 ${s.billingDay}일 결제${s.memo ? ' · ' + s.memo : ''}</div>
+        </div>
+        <div class="sub-price">
+          <div class="sub-price-value" style="color:${s.color}">${formatPrice(s.price)}</div>
+          <div class="sub-price-cycle">${getCycleLabel(s.cycle)}</div>
+        </div>
+        <div class="sub-actions">
+          <button class="btn-icon edit" onclick="event.stopPropagation(); editSub('${s.id}')" title="수정">✏️</button>
+          <button class="btn-icon" onclick="event.stopPropagation(); deleteSub('${s.id}')" title="삭제">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  updateSummary();
+}
+
+function updateSummary() {
+  let monthly = 0;
+  subscriptions.forEach(s => {
+    if (s.cycle === 'monthly') monthly += s.price;
+    else if (s.cycle === 'yearly') monthly += Math.round(s.price / 12);
+    else if (s.cycle === 'weekly') monthly += s.price * 4;
+  });
+
+  document.getElementById('totalMonthly').textContent = formatPrice(monthly);
+  document.getElementById('totalYearly').textContent = formatPrice(monthly * 12);
+  document.getElementById('totalCount').textContent = subscriptions.length;
+}
+
+// Modal
+function openModal() {
+  document.getElementById('modalTitle').textContent = '구독 추가';
+  document.getElementById('editId').value = '';
+  document.getElementById('subName').value = '';
+  document.getElementById('subPrice').value = '';
+  document.getElementById('subCycle').value = 'monthly';
+  document.getElementById('subCategory').value = 'entertainment';
+  document.getElementById('subBillingDay').value = '';
+  document.getElementById('subEmoji').value = '';
+  document.getElementById('subMemo').value = '';
+  selectColor('#6c5ce7');
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function editSub(id) {
+  const s = subscriptions.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('modalTitle').textContent = '구독 수정';
+  document.getElementById('editId').value = id;
+  document.getElementById('subName').value = s.name;
+  document.getElementById('subPrice').value = s.price;
+  document.getElementById('subCycle').value = s.cycle;
+  document.getElementById('subCategory').value = s.category;
+  document.getElementById('subBillingDay').value = s.billingDay;
+  document.getElementById('subEmoji').value = s.emoji;
+  document.getElementById('subMemo').value = s.memo || '';
+  selectColor(s.color);
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+function selectColor(color) {
+  selectedColor = color;
+  document.querySelectorAll('.color-option').forEach(c => {
+    c.classList.toggle('selected', c.dataset.color === color);
+  });
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  render();
+}
+
+// Helpers
+function formatPrice(n) {
+  return '₩' + n.toLocaleString('ko-KR');
+}
+
+function getCycleLabel(c) {
+  return { monthly: '/ 월', yearly: '/ 년', weekly: '/ 주' }[c] || '';
+}
+
+function getCategoryLabel(c) {
+  return { entertainment: '엔터', productivity: '생산성', lifestyle: '라이프', etc: '기타' }[c] || c;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// Init
+fetchSubs();
+</script>
+</body>
+</html>

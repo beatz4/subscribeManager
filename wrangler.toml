@@ -1,0 +1,15 @@
+# wrangler.toml
+# Cloudflare Pages 프로젝트 설정
+
+name = "subscription-manager"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "./public"
+
+# KV Namespace 바인딩
+# 아래 id는 KV namespace 생성 후 실제 값으로 교체해야 합니다
+[[kv_namespaces]]
+binding = "SUBSCRIPTIONS"
+id = "YOUR_KV_NAMESPACE_ID"
+
+# 프리뷰 환경용 (wrangler pages dev 시 사용)
+# preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
