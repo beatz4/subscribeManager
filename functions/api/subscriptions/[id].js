@@ -47,6 +47,7 @@ export async function onRequest(context) {
         emoji: body.emoji ?? subs[idx].emoji,
         color: body.color ?? subs[idx].color,
         memo: body.memo ?? subs[idx].memo,
+        active: body.active ?? subs[idx].active,
         updatedAt: new Date().toISOString(),
       };
 

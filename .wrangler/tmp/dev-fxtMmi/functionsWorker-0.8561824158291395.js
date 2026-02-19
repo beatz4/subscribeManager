@@ -96,6 +96,7 @@ async function onRequest(context) {
         emoji: body.emoji ?? subs[idx].emoji,
         color: body.color ?? subs[idx].color,
         memo: body.memo ?? subs[idx].memo,
+        active: body.active ?? subs[idx].active,
         updatedAt: (/* @__PURE__ */ new Date()).toISOString()
       };
       await KV.put("subs", JSON.stringify(subs));
@@ -161,6 +162,10 @@ async function onRequest2(context) {
       subs.push(newSub);
       await KV.put("subs", JSON.stringify(subs));
       return json2(newSub, 201);
+    }
+    if (request.method === "DELETE") {
+      await KV.put("subs", JSON.stringify([]));
+      return json2({ success: true });
     }
     return json2({ error: "Method not allowed" }, 405);
   } catch (e) {

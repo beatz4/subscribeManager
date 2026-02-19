@@ -3,12 +3,12 @@
 // export dynamically through wrangler, or we can potentially let users directly
 // add them as a sort of "plugin" system.
 
-import ENTRY, { __INTERNAL_WRANGLER_MIDDLEWARE__ } from "D:\\0001.Project\\0003 Projects By Clade\\0001.SubscribeManager\\subscribeManager\\.wrangler\\tmp\\bundle-pHyA5N\\middleware-insertion-facade.js";
+import ENTRY, { __INTERNAL_WRANGLER_MIDDLEWARE__ } from "D:\\0001.Project\\0003 Projects By Clade\\0001.SubscribeManager\\subscribeManager\\.wrangler\\tmp\\bundle-uHlrTe\\middleware-insertion-facade.js";
 import { __facade_invoke__, __facade_register__, Dispatcher } from "C:\\Users\\beatz\\AppData\\Local\\npm-cache\\_npx\\32026684e21afda6\\node_modules\\wrangler\\templates\\middleware\\common.ts";
-import type { WorkerEntrypointConstructor } from "D:\\0001.Project\\0003 Projects By Clade\\0001.SubscribeManager\\subscribeManager\\.wrangler\\tmp\\bundle-pHyA5N\\middleware-insertion-facade.js";
+import type { WorkerEntrypointConstructor } from "D:\\0001.Project\\0003 Projects By Clade\\0001.SubscribeManager\\subscribeManager\\.wrangler\\tmp\\bundle-uHlrTe\\middleware-insertion-facade.js";
 
 // Preserve all the exports from the worker
-export * from "D:\\0001.Project\\0003 Projects By Clade\\0001.SubscribeManager\\subscribeManager\\.wrangler\\tmp\\bundle-pHyA5N\\middleware-insertion-facade.js";
+export * from "D:\\0001.Project\\0003 Projects By Clade\\0001.SubscribeManager\\subscribeManager\\.wrangler\\tmp\\bundle-uHlrTe\\middleware-insertion-facade.js";
 
 class __Facade_ScheduledController__ implements ScheduledController {
 	readonly #noRetry: ScheduledController["noRetry"];

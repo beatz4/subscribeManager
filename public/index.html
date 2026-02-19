@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>구독 관리</title>
+<title>Subscription Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -127,6 +127,30 @@ header {
 
 .btn-theme:hover {
   border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.btn-lang {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.btn-lang:hover {
+  border-color: var(--accent);
+  color: var(--accent);
   transform: translateY(-2px);
 }
 
@@ -603,6 +627,16 @@ header {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Click blocker */
+.click-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  cursor: wait;
+  display: none;
+}
+.click-blocker.active { display: block; }
+
 /* Responsive */
 @media (max-width: 600px) {
   .summary { grid-template-columns: repeat(2, 1fr); }
@@ -626,44 +660,45 @@ header {
       <h1>SUBSCRIBE<span>.</span>MANAGER</h1>
     </div>
     <div style="display:flex; gap:10px; align-items:center;">
-      <button class="btn-theme" onclick="toggleTheme()" id="themeBtn" title="테마 전환">🌙</button>
+      <button class="btn-lang" onclick="toggleLang()" id="langBtn">KO</button>
+      <button class="btn-theme" onclick="toggleTheme()" id="themeBtn" title="Theme">🌙</button>
       <button class="btn-add" onclick="openModal()">
-        <span>+</span> 구독 추가
+        <span>+</span> <span data-i18n="addBtn">Add</span>
       </button>
     </div>
   </header>
 
   <div class="summary">
     <div class="summary-card">
-      <div class="summary-label">Monthly</div>
+      <div class="summary-label" data-i18n="labelMonthly">Monthly</div>
       <div class="summary-value" id="totalMonthly">₩0</div>
-      <div class="summary-sub">월간 총 구독료</div>
+      <div class="summary-sub" data-i18n="subMonthly">Monthly total</div>
     </div>
     <div class="summary-card">
-      <div class="summary-label">Yearly</div>
+      <div class="summary-label" data-i18n="labelYearly">Yearly</div>
       <div class="summary-value" id="totalYearly">₩0</div>
-      <div class="summary-sub">연간 예상 비용</div>
+      <div class="summary-sub" data-i18n="subYearly">Yearly estimate</div>
     </div>
     <div class="summary-card small">
-      <div class="summary-label">Active</div>
+      <div class="summary-label" data-i18n="labelActive">Active</div>
       <div class="summary-value" id="totalCount">0</div>
-      <div class="summary-sub">활성 구독</div>
+      <div class="summary-sub" data-i18n="subActive">Active subs</div>
     </div>
     <div class="summary-card small">
-      <div class="summary-label">Inactive</div>
+      <div class="summary-label" data-i18n="labelInactive">Inactive</div>
       <div class="summary-value" id="inactiveCount">0</div>
-      <div class="summary-sub">비활성 구독</div>
+      <div class="summary-sub" data-i18n="subInactive">Inactive subs</div>
     </div>
   </div>
 
   <div class="filter-bar">
-    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">전체</button>
-    <button class="filter-btn" data-filter="entertainment" onclick="setFilter('entertainment')">엔터테인먼트</button>
-    <button class="filter-btn" data-filter="productivity" onclick="setFilter('productivity')">생산성</button>
-    <button class="filter-btn" data-filter="lifestyle" onclick="setFilter('lifestyle')">라이프스타일</button>
-    <button class="filter-btn" data-filter="etc" onclick="setFilter('etc')">기타</button>
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')" data-i18n="filterAll">All</button>
+    <button class="filter-btn" data-filter="entertainment" onclick="setFilter('entertainment')" data-i18n="filterEntertainment">Entertainment</button>
+    <button class="filter-btn" data-filter="productivity" onclick="setFilter('productivity')" data-i18n="filterProductivity">Productivity</button>
+    <button class="filter-btn" data-filter="lifestyle" onclick="setFilter('lifestyle')" data-i18n="filterLifestyle">Lifestyle</button>
+    <button class="filter-btn" data-filter="etc" onclick="setFilter('etc')" data-i18n="filterEtc">Other</button>
     <div class="filter-spacer"></div>
-    <button class="btn-delete-all" onclick="deleteAll()">전체 삭제</button>
+    <button class="btn-delete-all" onclick="deleteAll()" data-i18n="deleteAll">Delete All</button>
   </div>
 
   <div id="subList" class="sub-list">
@@ -674,52 +709,52 @@ header {
 <!-- Modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <h2 id="modalTitle">구독 추가</h2>
+    <h2 id="modalTitle">Add Subscription</h2>
     <input type="hidden" id="editId">
 
     <div class="form-group">
-      <label>서비스명</label>
-      <input type="text" id="subName" placeholder="예: Netflix, Spotify...">
+      <label data-i18n="labelName">Service Name</label>
+      <input type="text" id="subName" placeholder="Netflix, Spotify...">
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>금액 (원)</label>
-        <input type="number" id="subPrice" placeholder="13,500" step="1000" min="0" value="13500">
+        <label data-i18n="labelPrice">Price (KRW)</label>
+        <input type="number" id="subPrice" placeholder="13500" step="1000" min="0" value="13500">
       </div>
       <div class="form-group">
-        <label>결제 주기</label>
+        <label data-i18n="labelCycle">Billing Cycle</label>
         <select id="subCycle">
-          <option value="monthly">월간</option>
-          <option value="yearly">연간</option>
-          <option value="weekly">주간</option>
+          <option value="monthly" data-i18n="cycleMonthly">Monthly</option>
+          <option value="yearly" data-i18n="cycleYearly">Yearly</option>
+          <option value="weekly" data-i18n="cycleWeekly">Weekly</option>
         </select>
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>카테고리</label>
+        <label data-i18n="labelCategory">Category</label>
         <select id="subCategory">
-          <option value="entertainment">엔터테인먼트</option>
-          <option value="productivity">생산성</option>
-          <option value="lifestyle">라이프스타일</option>
-          <option value="etc">기타</option>
+          <option value="entertainment" data-i18n="catEntertainment">Entertainment</option>
+          <option value="productivity" data-i18n="catProductivity">Productivity</option>
+          <option value="lifestyle" data-i18n="catLifestyle">Lifestyle</option>
+          <option value="etc" data-i18n="catEtc">Other</option>
         </select>
       </div>
       <div class="form-group">
-        <label>결제일</label>
+        <label data-i18n="labelBillingDay">Billing Day</label>
         <input type="number" id="subBillingDay" min="1" max="31" placeholder="10" value="10">
       </div>
     </div>
 
     <div class="form-group">
-      <label>아이콘 (이모지)</label>
+      <label data-i18n="labelEmoji">Icon (Emoji)</label>
       <input type="text" id="subEmoji" placeholder="🎬" maxlength="4">
     </div>
 
     <div class="form-group">
-      <label>색상</label>
+      <label data-i18n="labelColor">Color</label>
       <div class="color-picker" id="colorPicker">
         <div class="color-option selected" data-color="#6c5ce7" style="background:#6c5ce7"></div>
         <div class="color-option" data-color="#e17055" style="background:#e17055"></div>
@@ -733,27 +768,28 @@ header {
     </div>
 
     <div class="form-group">
-      <label>메모 (선택)</label>
-      <input type="text" id="subMemo" placeholder="가족 공유 계정">
+      <label data-i18n="labelMemo">Memo (optional)</label>
+      <input type="text" id="subMemo" placeholder="Family plan">
     </div>
 
     <div class="form-group" id="statusGroup" style="display:none">
-      <label>상태</label>
+      <label data-i18n="labelStatus">Status</label>
       <div class="status-toggle" id="statusToggle" onclick="toggleStatus()">
         <div class="status-toggle-track">
           <div class="status-toggle-thumb"></div>
         </div>
-        <span class="status-toggle-label">활성</span>
+        <span class="status-toggle-label">Active</span>
       </div>
     </div>
 
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">취소</button>
-      <button class="btn-save" onclick="saveSub()">저장</button>
+      <button class="btn-cancel" onclick="closeModal()" data-i18n="cancel">Cancel</button>
+      <button class="btn-save" data-i18n="save">Save</button>
     </div>
   </div>
 </div>
 
+<div class="click-blocker" id="clickBlocker"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -762,6 +798,148 @@ let subscriptions = [];
 let currentFilter = 'all';
 let selectedColor = '#6c5ce7';
 let selectedActive = true;
+let currentLang = 'en';
+let isSaving = false;
+
+// Translations
+const translations = {
+  en: {
+    pageTitle: 'Subscription Manager',
+    addBtn: 'Add',
+    labelMonthly: 'Monthly',
+    labelYearly: 'Yearly',
+    labelActive: 'Active',
+    labelInactive: 'Inactive',
+    subMonthly: 'Monthly total',
+    subYearly: 'Yearly estimate',
+    subActive: 'Active subs',
+    subInactive: 'Inactive subs',
+    filterAll: 'All',
+    filterEntertainment: 'Entertainment',
+    filterProductivity: 'Productivity',
+    filterLifestyle: 'Lifestyle',
+    filterEtc: 'Other',
+    deleteAll: 'Delete All',
+    empty: 'No subscriptions yet',
+    modalAdd: 'Add Subscription',
+    modalEdit: 'Edit Subscription',
+    labelName: 'Service Name',
+    labelPrice: 'Price (KRW)',
+    labelCycle: 'Billing Cycle',
+    labelCategory: 'Category',
+    labelBillingDay: 'Billing Day',
+    labelEmoji: 'Icon (Emoji)',
+    labelColor: 'Color',
+    labelMemo: 'Memo (optional)',
+    labelStatus: 'Status',
+    cycleMonthly: 'Monthly',
+    cycleYearly: 'Yearly',
+    cycleWeekly: 'Weekly',
+    catEntertainment: 'Entertainment',
+    catProductivity: 'Productivity',
+    catLifestyle: 'Lifestyle',
+    catEtc: 'Other',
+    statusActive: 'Active',
+    statusInactive: 'Inactive',
+    cancel: 'Cancel',
+    save: 'Save',
+    saving: 'Saving...',
+    toastValidation: '⚠️ Please enter service name and price',
+    toastDuplicate: '⚠️ A subscription with the same name and category already exists',
+    toastAdded: '✅ Added successfully',
+    toastUpdated: '✅ Updated successfully',
+    toastSaveFail: '❌ Save failed: ',
+    toastActivated: '🔔 Subscription activated',
+    toastDeactivated: '🔕 Subscription deactivated',
+    toastToggleFail: '❌ Failed to change status',
+    toastDeleted: '🗑️ Deleted',
+    toastDeleteFail: '❌ Delete failed',
+    toastNoSubs: 'No subscriptions to delete',
+    toastDeleteAll: '🗑️ All subscriptions deleted',
+    toastDeleteAllFail: '❌ Delete failed',
+    confirmDelete: 'Delete this subscription?',
+    catLabel: { entertainment: 'Enter.', productivity: 'Prod.', lifestyle: 'Lifestyle', etc: 'Other' },
+    cycleLabel: { monthly: '/ mo', yearly: '/ yr', weekly: '/ wk' },
+  },
+  ko: {
+    pageTitle: '구독 관리',
+    addBtn: '구독 추가',
+    labelMonthly: 'Monthly',
+    labelYearly: 'Yearly',
+    labelActive: 'Active',
+    labelInactive: 'Inactive',
+    subMonthly: '월간 총 구독료',
+    subYearly: '연간 예상 비용',
+    subActive: '활성 구독',
+    subInactive: '비활성 구독',
+    filterAll: '전체',
+    filterEntertainment: '엔터테인먼트',
+    filterProductivity: '생산성',
+    filterLifestyle: '라이프스타일',
+    filterEtc: '기타',
+    deleteAll: '전체 삭제',
+    empty: '등록된 구독이 없습니다',
+    modalAdd: '구독 추가',
+    modalEdit: '구독 수정',
+    labelName: '서비스명',
+    labelPrice: '금액 (원)',
+    labelCycle: '결제 주기',
+    labelCategory: '카테고리',
+    labelBillingDay: '결제일',
+    labelEmoji: '아이콘 (이모지)',
+    labelColor: '색상',
+    labelMemo: '메모 (선택)',
+    labelStatus: '상태',
+    cycleMonthly: '월간',
+    cycleYearly: '연간',
+    cycleWeekly: '주간',
+    catEntertainment: '엔터테인먼트',
+    catProductivity: '생산성',
+    catLifestyle: '라이프스타일',
+    catEtc: '기타',
+    statusActive: '활성',
+    statusInactive: '비활성',
+    cancel: '취소',
+    save: '저장',
+    saving: '저장 중...',
+    toastValidation: '⚠️ 서비스명과 금액을 입력해주세요',
+    toastDuplicate: '⚠️ 같은 이름과 카테고리의 구독이 이미 존재합니다',
+    toastAdded: '✅ 추가되었습니다',
+    toastUpdated: '✅ 수정되었습니다',
+    toastSaveFail: '❌ 저장 실패: ',
+    toastActivated: '🔔 구독 활성화',
+    toastDeactivated: '🔕 구독 비활성화',
+    toastToggleFail: '❌ 상태 변경 실패',
+    toastDeleted: '🗑️ 삭제되었습니다',
+    toastDeleteFail: '❌ 삭제에 실패했습니다',
+    toastNoSubs: '삭제할 구독이 없습니다',
+    toastDeleteAll: '🗑️ 전체 삭제되었습니다',
+    toastDeleteAllFail: '❌ 삭제에 실패했습니다',
+    confirmDelete: '정말 삭제하시겠습니까?',
+    catLabel: { entertainment: '엔터', productivity: '생산성', lifestyle: '라이프', etc: '기타' },
+    cycleLabel: { monthly: '/ 월', yearly: '/ 년', weekly: '/ 주' },
+  }
+};
+
+function t(key) {
+  return translations[currentLang][key] ?? translations.en[key] ?? key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.title = t('pageTitle');
+  document.getElementById('langBtn').textContent = currentLang === 'en' ? 'KO' : 'EN';
+  document.documentElement.lang = currentLang;
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'ko' : 'en';
+  localStorage.setItem('lang', currentLang);
+  applyTranslations();
+  render();
+}
 
 // Color picker
 document.querySelectorAll('.color-option').forEach(el => {
@@ -786,8 +964,12 @@ async function fetchSubs() {
 }
 
 async function saveSub() {
-  const id = document.getElementById('editId').value;
   const saveBtn = document.querySelector('.btn-save');
+  saveBtn.onclick = null; // 큐에 쌓인 클릭 이벤트 즉시 무력화
+
+  if (isSaving) return;
+
+  const id = document.getElementById('editId').value;
   const data = {
     name: document.getElementById('subName').value.trim(),
     price: parseInt(document.getElementById('subPrice').value) || 0,
@@ -801,12 +983,27 @@ async function saveSub() {
   };
 
   if (!data.name || !data.price) {
-    showToast('⚠️ 서비스명과 금액을 입력해주세요');
+    saveBtn.onclick = saveSub;
+    showToast(t('toastValidation'));
     return;
   }
 
+  const isDuplicate = subscriptions.some(s =>
+    s.id !== id &&
+    s.name.trim().toLowerCase() === data.name.toLowerCase() &&
+    s.category === data.category
+  );
+  if (isDuplicate) {
+    saveBtn.onclick = saveSub;
+    showToast(t('toastDuplicate'));
+    return;
+  }
+
+  isSaving = true;
   saveBtn.disabled = true;
-  saveBtn.textContent = '저장 중...';
+  saveBtn.textContent = t('saving');
+  closeModal();
+  document.getElementById('clickBlocker').classList.add('active');
 
   try {
     let res;
@@ -829,15 +1026,16 @@ async function saveSub() {
       throw new Error(err.error || `HTTP ${res.status}`);
     }
 
-    closeModal();
     await fetchSubs();
-    showToast(id ? '✅ 수정되었습니다' : '✅ 추가되었습니다');
+    showToast(id ? t('toastUpdated') : t('toastAdded'));
   } catch (e) {
     console.error('saveSub error:', e);
-    showToast('❌ 저장 실패: ' + e.message);
+    showToast(t('toastSaveFail') + e.message);
   } finally {
+    isSaving = false;
     saveBtn.disabled = false;
-    saveBtn.textContent = '저장';
+    saveBtn.textContent = t('save');
+    document.getElementById('clickBlocker').classList.remove('active');
   }
 }
 
@@ -853,37 +1051,49 @@ async function toggleSub(id) {
     });
     if (!res.ok) throw new Error('Toggle failed');
     await fetchSubs();
-    showToast(newActive ? '🔔 구독 활성화' : '🔕 구독 비활성화');
+    showToast(newActive ? t('toastActivated') : t('toastDeactivated'));
   } catch (e) {
-    showToast('❌ 상태 변경 실패');
+    showToast(t('toastToggleFail'));
   }
 }
 
 async function deleteSub(id) {
-  if (!confirm('정말 삭제하시겠습니까?')) return;
+  if (!confirm(t('confirmDelete'))) return;
   try {
     await fetch(`${API}/subscriptions/${id}`, { method: 'DELETE' });
-    showToast('🗑️ 삭제되었습니다');
+    showToast(t('toastDeleted'));
     await fetchSubs();
   } catch (e) {
-    showToast('❌ 삭제에 실패했습니다');
+    showToast(t('toastDeleteFail'));
   }
 }
 
 async function deleteAll() {
-  if (!subscriptions.length) {
-    showToast('삭제할 구독이 없습니다');
+  const filtered = currentFilter === 'all'
+    ? subscriptions
+    : subscriptions.filter(s => s.category === currentFilter);
+
+  if (!filtered.length) {
+    showToast(t('toastNoSubs'));
     return;
   }
-  if (!confirm(`총 ${subscriptions.length}개의 구독을 모두 삭제하시겠습니까?`)) return;
+  const msg = currentLang === 'en'
+    ? `Delete all ${filtered.length} subscriptions?`
+    : `총 ${filtered.length}개의 구독을 모두 삭제하시겠습니까?`;
+  if (!confirm(msg)) return;
   try {
-    await Promise.all(subscriptions.map(s =>
-      fetch(`${API}/subscriptions/${s.id}`, { method: 'DELETE' })
-    ));
-    showToast('🗑️ 전체 삭제되었습니다');
+    if (currentFilter === 'all') {
+      const res = await fetch(`${API}/subscriptions`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } else {
+      for (const s of filtered) {
+        await fetch(`${API}/subscriptions/${s.id}`, { method: 'DELETE' });
+      }
+    }
+    showToast(t('toastDeleteAll'));
     await fetchSubs();
   } catch (e) {
-    showToast('❌ 삭제에 실패했습니다');
+    showToast(t('toastDeleteAllFail'));
   }
 }
 
@@ -896,10 +1106,14 @@ function render() {
     list.innerHTML = `
       <div class="empty-state">
         <div class="icon">📭</div>
-        <p>등록된 구독이 없습니다</p>
+        <p>${t('empty')}</p>
       </div>`;
   } else {
-    list.innerHTML = filtered.map(s => `
+    list.innerHTML = filtered.map(s => {
+      const billingDetail = currentLang === 'en'
+        ? `Billed on ${s.billingDay}${s.memo ? ' · ' + s.memo : ''}`
+        : `매월 ${s.billingDay}일 결제${s.memo ? ' · ' + s.memo : ''}`;
+      return `
       <div class="sub-card${s.active === false ? ' inactive' : ''}" style="animation-delay: ${filtered.indexOf(s) * 0.05}s">
         <div class="sub-icon" style="background:${s.color}22; color:${s.color}">${s.emoji}</div>
         <div class="sub-info">
@@ -907,19 +1121,19 @@ function render() {
             ${s.name}
             <span class="sub-category">${getCategoryLabel(s.category)}</span>
           </div>
-          <div class="sub-detail">매월 ${s.billingDay}일 결제${s.memo ? ' · ' + s.memo : ''}</div>
+          <div class="sub-detail">${billingDetail}</div>
         </div>
         <div class="sub-price">
           <div class="sub-price-value" style="color:${s.color}">${formatPrice(s.price)}</div>
           <div class="sub-price-cycle">${getCycleLabel(s.cycle)}</div>
         </div>
         <div class="sub-actions">
-          <button class="btn-icon toggle" onclick="event.stopPropagation(); toggleSub('${s.id}')" title="${s.active === false ? '활성화' : '비활성화'}">${s.active === false ? '🔕' : '🔔'}</button>
-          <button class="btn-icon edit" onclick="event.stopPropagation(); editSub('${s.id}')" title="수정">✏️</button>
-          <button class="btn-icon" onclick="event.stopPropagation(); deleteSub('${s.id}')" title="삭제">🗑️</button>
+          <button class="btn-icon toggle" onclick="event.stopPropagation(); toggleSub('${s.id}')" title="${s.active === false ? t('statusActive') : t('statusInactive')}">${s.active === false ? '🔕' : '🔔'}</button>
+          <button class="btn-icon edit" onclick="event.stopPropagation(); editSub('${s.id}')" title="Edit">✏️</button>
+          <button class="btn-icon" onclick="event.stopPropagation(); deleteSub('${s.id}')" title="Delete">🗑️</button>
         </div>
       </div>
-    `).join('');
+    `}).join('');
   }
 
   updateSummary();
@@ -942,7 +1156,7 @@ function updateSummary() {
 
 // Modal
 function openModal() {
-  document.getElementById('modalTitle').textContent = '구독 추가';
+  document.getElementById('modalTitle').textContent = t('modalAdd');
   document.getElementById('editId').value = '';
   document.getElementById('subName').value = '';
   document.getElementById('subPrice').value = '15000';
@@ -954,13 +1168,14 @@ function openModal() {
   selectColor('#6c5ce7');
   setActiveStatus(true);
   document.getElementById('statusGroup').style.display = 'none';
+  document.querySelector('.btn-save').onclick = saveSub;
   document.getElementById('modalOverlay').classList.add('active');
 }
 
 function editSub(id) {
   const s = subscriptions.find(x => x.id === id);
   if (!s) return;
-  document.getElementById('modalTitle').textContent = '구독 수정';
+  document.getElementById('modalTitle').textContent = t('modalEdit');
   document.getElementById('editId').value = id;
   document.getElementById('subName').value = s.name;
   document.getElementById('subPrice').value = s.price;
@@ -972,6 +1187,7 @@ function editSub(id) {
   selectColor(s.color);
   setActiveStatus(s.active !== false);
   document.getElementById('statusGroup').style.display = '';
+  document.querySelector('.btn-save').onclick = saveSub;
   document.getElementById('modalOverlay').classList.add('active');
 }
 
@@ -991,7 +1207,7 @@ function setActiveStatus(active) {
   const toggle = document.getElementById('statusToggle');
   const label = toggle.querySelector('.status-toggle-label');
   toggle.classList.toggle('active', active);
-  label.textContent = active ? '활성' : '비활성';
+  label.textContent = active ? t('statusActive') : t('statusInactive');
 }
 
 function toggleStatus() {
@@ -1026,13 +1242,12 @@ function formatPrice(n) {
   return '₩' + n.toLocaleString('ko-KR');
 }
 
-
 function getCycleLabel(c) {
-  return { monthly: '/ 월', yearly: '/ 년', weekly: '/ 주' }[c] || '';
+  return t('cycleLabel')[c] || '';
 }
 
 function getCategoryLabel(c) {
-  return { entertainment: '엔터', productivity: '생산성', lifestyle: '라이프', etc: '기타' }[c] || c;
+  return t('catLabel')[c] || c;
 }
 
 function showToast(msg) {
@@ -1047,7 +1262,13 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
 
-// Init
+// Init language
+(function initLang() {
+  currentLang = localStorage.getItem('lang') || 'en';
+  applyTranslations();
+})();
+
+// Init data
 fetchSubs();
 </script>
 </body>

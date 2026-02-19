@@ -58,6 +58,11 @@ export async function onRequest(context) {
       return json(newSub, 201);
     }
 
+    if (request.method === 'DELETE') {
+      await KV.put('subs', JSON.stringify([]));
+      return json({ success: true });
+    }
+
     return json({ error: 'Method not allowed' }, 405);
   } catch (e) {
     return json({ error: e.message }, 500);

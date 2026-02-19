@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-pHyA5N/checked-fetch.js
+// ../.wrangler/tmp/bundle-Tc9t0h/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -68,6 +68,7 @@ async function onRequest(context) {
         emoji: body.emoji ?? subs[idx].emoji,
         color: body.color ?? subs[idx].color,
         memo: body.memo ?? subs[idx].memo,
+        active: body.active ?? subs[idx].active,
         updatedAt: (/* @__PURE__ */ new Date()).toISOString()
       };
       await KV.put("subs", JSON.stringify(subs));
@@ -132,6 +133,10 @@ async function onRequest2(context) {
       subs.push(newSub);
       await KV.put("subs", JSON.stringify(subs));
       return json2(newSub, 201);
+    }
+    if (request.method === "DELETE") {
+      await KV.put("subs", JSON.stringify([]));
+      return json2({ success: true });
     }
     return json2({ error: "Method not allowed" }, 405);
   } catch (e) {
@@ -645,7 +650,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-pHyA5N/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-Tc9t0h/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -677,7 +682,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-pHyA5N/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-Tc9t0h/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
